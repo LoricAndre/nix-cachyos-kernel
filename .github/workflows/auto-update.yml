@@ -3,6 +3,9 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '37 17 * * *'
+permissions:
+  actions: write
+  contents: write
 jobs:
   auto-update:
     runs-on: ubuntu-latest
