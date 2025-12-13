@@ -15,6 +15,21 @@ This repo provides the latest kernel version and the latest LTS kernel version:
         ├───linux-cachyos-latest-lto
         ├───linux-cachyos-lts
         └───linux-cachyos-lts-lto
+        # Additional CachyOS kernel variants
+        ├───linux-cachyos-bmq
+        ├───linux-cachyos-bmq-lto
+        ├───linux-cachyos-bore
+        ├───linux-cachyos-bore-lto
+        ├───linux-cachyos-deckify
+        ├───linux-cachyos-deckify-lto
+        ├───linux-cachyos-eevdf
+        ├───linux-cachyos-eevdf-lto
+        ├───linux-cachyos-hardened
+        ├───linux-cachyos-hardened-lto
+        ├───linux-cachyos-rt-bore
+        ├───linux-cachyos-rt-bore-lto
+        ├───linux-cachyos-server
+        ├───linux-cachyos-server-lto
 ```
 
 The kernel versions are automatically kept in sync with Nixpkgs, so once the latest/LTS kernel is updated in Nixpkgs, CachyOS kernels in this repo will automatically catch up.
@@ -63,6 +78,16 @@ Then specify `pkgs.cachyosKernels.linuxPackages-cachyos-latest` (or other varian
   };
 }
 ```
+
+### Help! My kernel is failing to build!
+
+In most cases, failing to build a kernel is caused by CachyOS not updating patches for the latest kernel version. (e.g. hardened 6.18 kernel as of 2025-12-12)
+
+Common symptoms are:
+- "File not found" error, which indicates that CachyOS patches for given kernel version/variant are unavailable.
+- Failures/conflicts when applying patches, which indicates that CachyOS patches are for an older kernel version.
+
+If this is the case, the only option is to wait for CachyOS team to update the patches.
 
 ## How to use ZFS modules
 
@@ -119,6 +144,10 @@ If you want to construct your own `linuxPackages` attrset with `linuxKernel.pack
   };
 }
 ```
+
+### Help! My ZFS module is failing to build!
+
+In most cases, failing to build ZFS module is caused by CachyOS not updating patches for the latest kernel version. The only option is to wait for CachyOS team to update the patches.
 
 ## How to apply CachyOS patches on your own kernel
 
