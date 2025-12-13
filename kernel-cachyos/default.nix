@@ -35,5 +35,109 @@ builtins.listToAttrs (
       configVariant = "linux-cachyos-lts";
       lto = true;
     })
+
+    # Additional CachyOS provided variants
+    (mkCachyKernel {
+      pname = "linux-cachyos-bmq";
+      inherit (linux_latest) version src;
+      configVariant = "linux-cachyos-bmq";
+      lto = false;
+      cpusched = "bmq";
+    })
+    (mkCachyKernel {
+      pname = "linux-cachyos-bmq-lto";
+      inherit (linux_latest) version src;
+      configVariant = "linux-cachyos-bmq";
+      lto = true;
+      cpusched = "bmq";
+    })
+    (mkCachyKernel {
+      pname = "linux-cachyos-bore";
+      inherit (linux_latest) version src;
+      configVariant = "linux-cachyos-bore";
+      lto = false;
+      cpusched = "bore";
+    })
+    (mkCachyKernel {
+      pname = "linux-cachyos-bore-lto";
+      inherit (linux_latest) version src;
+      configVariant = "linux-cachyos-bore";
+      lto = true;
+      cpusched = "bore";
+    })
+    (mkCachyKernel {
+      pname = "linux-cachyos-deckify";
+      inherit (linux_latest) version src;
+      configVariant = "linux-cachyos-deckify";
+      lto = false;
+    })
+    (mkCachyKernel {
+      pname = "linux-cachyos-deckify-lto";
+      inherit (linux_latest) version src;
+      configVariant = "linux-cachyos-deckify";
+      lto = true;
+    })
+    (mkCachyKernel {
+      pname = "linux-cachyos-eevdf";
+      inherit (linux_latest) version src;
+      configVariant = "linux-cachyos-eevdf";
+      cpusched = "eevdf";
+      lto = false;
+    })
+    (mkCachyKernel {
+      pname = "linux-cachyos-eevdf-lto";
+      inherit (linux_latest) version src;
+      configVariant = "linux-cachyos-eevdf";
+      cpusched = "eevdf";
+      lto = true;
+    })
+    (mkCachyKernel {
+      pname = "linux-cachyos-hardened";
+      inherit (linux_latest) version src;
+      configVariant = "linux-cachyos-hardened";
+      hardened = true;
+      lto = false;
+    })
+    (mkCachyKernel {
+      pname = "linux-cachyos-hardened-lto";
+      inherit (linux_latest) version src;
+      configVariant = "linux-cachyos-hardened";
+      hardened = true;
+      lto = true;
+    })
+    (mkCachyKernel {
+      pname = "linux-cachyos-rt-bore";
+      inherit (linux_latest) version src;
+      configVariant = "linux-cachyos-rt-bore";
+      rt = true;
+      cpusched = "bore";
+      lto = false;
+    })
+    (mkCachyKernel {
+      pname = "linux-cachyos-rt-bore-lto";
+      inherit (linux_latest) version src;
+      configVariant = "linux-cachyos-rt-bore";
+      rt = true;
+      cpusched = "bore";
+      lto = true;
+    })
+    (mkCachyKernel {
+      pname = "linux-cachyos-server";
+      inherit (linux_latest) version src;
+      configVariant = "linux-cachyos-server";
+      cpusched = "eevdf";
+      hzTicks = "300";
+      preemptType = "none";
+      lto = false;
+    })
+    (mkCachyKernel {
+      pname = "linux-cachyos-server-lto";
+      inherit (linux_latest) version src;
+      configVariant = "linux-cachyos-server";
+      cpusched = "eevdf";
+      hzTicks = "300";
+      preemptType = "none";
+      lto = true;
+    })
   ]
 )

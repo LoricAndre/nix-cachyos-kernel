@@ -25,6 +25,23 @@ lib.makeOverridable (
     patches ? [ ],
     postPatch ? "",
 
+    # CachyOS fine tuning settings, see ./cachySettings.nix for corresponding options
+    # Default value sourced from https://github.com/CachyOS/linux-cachyos/blob/master/linux-cachyos/PKGBUILD
+    # Set to null or false to disable
+    cpusched ? "bore",
+    kcfi ? false,
+    hzTicks ? "1000",
+    performanceGovernor ? false,
+    tickrate ? "full",
+    preemptType ? "full",
+    ccHarder ? true,
+    bbr3 ? false,
+    hugepage ? "always",
+
+    # CachyOS additional patch settings
+    hardened ? false,
+    rt ? false,
+
     # See nixpkgs/pkgs/os-specific/linux/kernel/generic.nix for additional options.
     # Additional args are passed to buildLinux.
     ...
@@ -39,7 +56,13 @@ lib.makeOverridable (
     fullVersion = lib.versions.pad 3 ver0;
 
     cachyosConfigFile = "${inputs.cachyos-kernel.outPath}/${configVariant}/config";
-    cachyosPatch = "${inputs.cachyos-kernel-patches.outPath}/${major}/all/0001-cachyos-base-all.patch";
+    cachyosPatches = builtins.map (p: "${inputs.cachyos-kernel-patches.outPath}/${major}/${p}") (
+      [ "all/0001-cachyos-base-all.patch" ]
+      ++ (lib.optional (cpusched == "bore") "sched/0001-bore-cachy.patch")
+      ++ (lib.optional (cpusched == "bmq") "sched/0001-prjc-cachy.patch")
+      ++ (lib.optional hardened "misc/0001-hardened.patch")
+      ++ (lib.optional rt "misc/0001-rt-i915.patch")
+    );
 
     # buildLinux doesn't accept postPatch, so adding config file early here
     patchedSrc = stdenv.mkDerivation {
@@ -48,8 +71,8 @@ lib.makeOverridable (
       patches = [
         kernelPatches.bridge_stp_helper.patch
         kernelPatches.request_key_helper.patch
-        cachyosPatch
       ]
+      ++ cachyosPatches
       ++ patches;
       postPatch = ''
         install -Dm644 ${cachyosConfigFile} arch/x86/configs/cachyos_defconfig
@@ -65,6 +88,44 @@ lib.makeOverridable (
     };
 
     defaultLocalVersion = if lto then "-cachyos-lto" else "-cachyos";
+
+    cachySettings = callPackage ./cachySettings.nix { };
+    structuredExtraConfig =
+      # Apply basic kernel options
+      (with lib.kernel; {
+        NR_CPUS = lib.mkForce (option (freeform "8192"));
+        LOCALVERSION = freeform defaultLocalVersion;
+
+        # Follow NixOS default config to not break etc overlay
+        OVERLAY_FS = module;
+        OVERLAY_FS_REDIRECT_DIR = no;
+        OVERLAY_FS_REDIRECT_ALWAYS_FOLLOW = yes;
+        OVERLAY_FS_INDEX = no;
+        OVERLAY_FS_XINO_AUTO = no;
+        OVERLAY_FS_METACOPY = no;
+        OVERLAY_FS_DEBUG = no;
+      })
+      // (lib.optionalAttrs lto {
+        LTO_NONE = lib.kernel.no;
+        LTO_CLANG_THIN = lib.kernel.yes;
+      })
+
+      # Apply CachyOS specific settings
+      // (lib.mapAttrs (_: lib.mkForce) (
+        cachySettings.common
+        // (lib.optionalAttrs (cpusched != null) cachySettings.cpusched."${cpusched}")
+        // (lib.optionalAttrs kcfi cachySettings.kcfi)
+        // (lib.optionalAttrs (hzTicks != null) cachySettings.hzTicks."${hzTicks}")
+        // (lib.optionalAttrs performanceGovernor cachySettings.performanceGovernor)
+        // (lib.optionalAttrs (tickrate != null) cachySettings.tickrate."${tickrate}")
+        // (lib.optionalAttrs (preemptType != null) cachySettings.preemptType."${preemptType}")
+        // (lib.optionalAttrs ccHarder cachySettings.ccHarder)
+        // (lib.optionalAttrs bbr3 cachySettings.bbr3)
+        // (lib.optionalAttrs (hugepage != null) cachySettings.hugepage."${hugepage}")
+      ))
+
+      # Apply user custom settings
+      // (args.structuredExtraConfig or { });
   in
   buildLinux (
     (lib.removeAttrs args [
@@ -88,31 +149,10 @@ lib.makeOverridable (
 
       modDirVersion = args.modDirVersion or "${fullVersion}${defaultLocalVersion}";
 
-      # Clang has some incompatibilities with NixOS's default kernel config
-      ignoreConfigErrors = args.ignoreConfigErrors or lto;
+      # CachyOS's options has some unused options for older kernel versions
+      ignoreConfigErrors = args.ignoreConfigErrors or true;
 
-      structuredExtraConfig =
-        with lib.kernel;
-        (
-          {
-            NR_CPUS = lib.mkForce (option (freeform "8192"));
-            LOCALVERSION = freeform defaultLocalVersion;
-
-            # Follow NixOS default config to not break etc overlay
-            OVERLAY_FS = module;
-            OVERLAY_FS_REDIRECT_DIR = no;
-            OVERLAY_FS_REDIRECT_ALWAYS_FOLLOW = yes;
-            OVERLAY_FS_INDEX = no;
-            OVERLAY_FS_XINO_AUTO = no;
-            OVERLAY_FS_METACOPY = no;
-            OVERLAY_FS_DEBUG = no;
-          }
-          // (lib.optionalAttrs lto {
-            LTO_NONE = no;
-            LTO_CLANG_THIN = yes;
-          })
-          // (args.structuredExtraConfig or { })
-        );
+      inherit structuredExtraConfig;
 
       extraMeta = {
         description = "Linux CachyOS Kernel" + lib.optionalString lto " with Clang+ThinLTO";
@@ -121,7 +161,7 @@ lib.makeOverridable (
       // (args.extraMeta or { });
 
       extraPassthru = {
-        inherit cachyosConfigFile cachyosPatch;
+        inherit cachyosConfigFile cachyosPatches;
       }
       // (args.extraPassthru or { });
     }
