@@ -103,9 +103,6 @@ lib.makeOverridable (
         NR_CPUS = lib.mkForce (option (freeform "8192"));
         LOCALVERSION = freeform defaultLocalVersion;
 
-        # https://github.com/xddxdd/nix-cachyos-kernel/issues/13
-        NOVA_CORE = no;
-
         # Follow NixOS default config to not break etc overlay
         OVERLAY_FS = module;
         OVERLAY_FS_REDIRECT_DIR = no;
