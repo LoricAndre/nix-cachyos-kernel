@@ -57,13 +57,14 @@ lib.makeOverridable (
     helpers = callPackage ../helpers.nix { };
     inherit (helpers) stdenvLLVM ltoMakeflags;
 
-    splitted = lib.splitString "-" version;
-    ver0 = builtins.elemAt splitted 0;
-    major = lib.versions.pad 2 ver0;
-    fullVersion = lib.versions.pad 3 ver0;
+    # For finding patches
+    patchVersion = lib.versions.majorMinor version;
+
+    # For use in moddirversion
+    fullVersion = lib.versions.pad 3 version;
 
     cachyosConfigFile = "${inputs.cachyos-kernel.outPath}/${configVariant}/config";
-    cachyosPatches = builtins.map (p: "${inputs.cachyos-kernel-patches.outPath}/${major}/${p}") (
+    cachyosPatches = builtins.map (p: "${inputs.cachyos-kernel-patches.outPath}/${patchVersion}/${p}") (
       [ "all/0001-cachyos-base-all.patch" ]
       ++ (lib.optional (cpusched == "bore") "sched/0001-bore-cachy.patch")
       ++ (lib.optional (cpusched == "bmq") "sched/0001-prjc-cachy.patch")
