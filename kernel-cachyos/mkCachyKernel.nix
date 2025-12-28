@@ -39,6 +39,7 @@ lib.makeOverridable (
     ccHarder ? true,
     bbr3 ? false,
     hugepage ? "always",
+    processorOpt ? "x86_64-v1",
 
     # CachyOS additional patch settings
     hardened ? false,
@@ -126,6 +127,7 @@ lib.makeOverridable (
         // (lib.optionalAttrs ccHarder cachySettings.ccHarder)
         // (lib.optionalAttrs bbr3 cachySettings.bbr3)
         // (lib.optionalAttrs (hugepage != null) cachySettings.hugepage."${hugepage}")
+        // (lib.optionalAttrs (processorOpt != null) cachySettings.processorOpt.${processorOpt})
       ))
 
       # Apply user custom settings

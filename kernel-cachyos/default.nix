@@ -12,10 +12,35 @@ let
 in
 builtins.listToAttrs (
   builtins.map (v: lib.nameValuePair v.pname v) [
+    # Latest kernel, provide all LTO/CPU arch variants
     (mkCachyKernel {
       pname = "linux-cachyos-latest";
       inherit (linux_latest) version src;
       configVariant = "linux-cachyos";
+    })
+    (mkCachyKernel {
+      pname = "linux-cachyos-latest-x86_64-v2";
+      inherit (linux_latest) version src;
+      configVariant = "linux-cachyos";
+      processorOpt = "x86_64-v2";
+    })
+    (mkCachyKernel {
+      pname = "linux-cachyos-latest-x86_64-v3";
+      inherit (linux_latest) version src;
+      configVariant = "linux-cachyos";
+      processorOpt = "x86_64-v3";
+    })
+    (mkCachyKernel {
+      pname = "linux-cachyos-latest-x86_64-v4";
+      inherit (linux_latest) version src;
+      configVariant = "linux-cachyos";
+      processorOpt = "x86_64-v4";
+    })
+    (mkCachyKernel {
+      pname = "linux-cachyos-latest-zen4";
+      inherit (linux_latest) version src;
+      configVariant = "linux-cachyos";
+      processorOpt = "zen4";
     })
     (mkCachyKernel {
       pname = "linux-cachyos-latest-lto";
@@ -23,6 +48,36 @@ builtins.listToAttrs (
       configVariant = "linux-cachyos";
       lto = "thin";
     })
+    (mkCachyKernel {
+      pname = "linux-cachyos-latest-lto-x86_64-v2";
+      inherit (linux_latest) version src;
+      configVariant = "linux-cachyos";
+      lto = "thin";
+      processorOpt = "x86_64-v2";
+    })
+    (mkCachyKernel {
+      pname = "linux-cachyos-latest-lto-x86_64-v3";
+      inherit (linux_latest) version src;
+      configVariant = "linux-cachyos";
+      lto = "thin";
+      processorOpt = "x86_64-v3";
+    })
+    (mkCachyKernel {
+      pname = "linux-cachyos-latest-lto-x86_64-v4";
+      inherit (linux_latest) version src;
+      configVariant = "linux-cachyos";
+      lto = "thin";
+      processorOpt = "x86_64-v4";
+    })
+    (mkCachyKernel {
+      pname = "linux-cachyos-latest-lto-zen4";
+      inherit (linux_latest) version src;
+      configVariant = "linux-cachyos";
+      lto = "thin";
+      processorOpt = "zen4";
+    })
+
+    # LTS kernel
     (mkCachyKernel {
       pname = "linux-cachyos-lts";
       inherit (linux) version src;

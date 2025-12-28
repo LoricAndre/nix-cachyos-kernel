@@ -65,6 +65,38 @@ with lib.kernel;
     CPU_FREQ_DEFAULT_GOV_PERFORMANCE = yes;
   };
 
+  processorOpt = {
+    x86_64-v1 = {
+      GENERIC_CPU = yes;
+      MZEN4 = no;
+      X86_NATIVE_CPU = no;
+      X86_64_VERSION = freeform "1";
+    };
+    x86_64-v2 = {
+      GENERIC_CPU = yes;
+      MZEN4 = no;
+      X86_NATIVE_CPU = no;
+      X86_64_VERSION = freeform "2";
+    };
+    x86_64-v3 = {
+      GENERIC_CPU = yes;
+      MZEN4 = no;
+      X86_NATIVE_CPU = no;
+      X86_64_VERSION = freeform "3";
+    };
+    x86_64-v4 = {
+      GENERIC_CPU = yes;
+      MZEN4 = no;
+      X86_NATIVE_CPU = no;
+      X86_64_VERSION = freeform "4";
+    };
+    zen4 = {
+      GENERIC_CPU = no;
+      MZEN4 = yes;
+      X86_NATIVE_CPU = no;
+    };
+  };
+
   tickrate = {
     periodic = {
       NO_HZ_IDLE = no;
